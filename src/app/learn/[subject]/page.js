@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { subjects } from "@/lib/data";
-import SelfPacedLesson from "@/components/SelfPacedLesson";
+import EnhancedLesson from "@/components/EnhancedLesson";
 import Chatbot from "@/components/Chatbot";
 
 export default function LearnPage() {
@@ -60,7 +60,7 @@ export default function LearnPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white relative overflow-hidden">
+    <main className="min-h-screen bg-[#050505] text-white relative overflow-hidden px-0">
       {/* Background Effects */}
       <div className="absolute inset-0 opacity-[0.04] pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:60px_60px]" />
@@ -69,7 +69,7 @@ export default function LearnPage() {
 
       {/* Header */}
       <div className="relative z-10 border-b border-white/10 bg-black/40 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+        <div className="max-w-full mx-auto px-6 py-6 flex items-center justify-between">
           <button
             onClick={() => router.push("/")}
             className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
@@ -97,7 +97,7 @@ export default function LearnPage() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+      <div className="relative z-10 max-w-full mx-auto px-0 py-12">
         <AnimatePresence mode="wait">
           {currentStep === "topics" && (
             <motion.div
@@ -157,7 +157,7 @@ export default function LearnPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <SelfPacedLesson
+              <EnhancedLesson
                 topic={selectedTopic}
                 subject={subject}
                 interest={interest}

@@ -79,7 +79,7 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-0">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white text-xl">Generating your quiz...</p>
@@ -90,9 +90,10 @@ export default function QuizPage() {
 
   if (showResult) {
     const percentage = Math.round((score / questions.length) * 100);
+    const needsRetry = percentage < 60;
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-6 py-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -129,6 +130,15 @@ export default function QuizPage() {
             ))}
           </div>
 
+          {needsRetry && (
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-6 mb-6">
+              <p className="text-yellow-300 font-semibold mb-2">💡 Suggestion</p>
+              <p className="text-white/80">
+                You're doing great! Would you like to try the quiz again to improve your score? Practice makes perfect!
+              </p>
+            </div>
+          )}
+
           <div className="flex gap-4">
             <button
               onClick={() => router.push("/")}
@@ -158,7 +168,7 @@ export default function QuizPage() {
   const question = questions[currentQuestion];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-6 py-8">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">

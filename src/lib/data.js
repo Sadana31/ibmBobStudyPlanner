@@ -51,6 +51,58 @@ export const subjects = {
       "Gravity",
     ],
   },
+
+  biology: {
+    label: "Biology Basics",
+    emoji: "🧬",
+    color: "#10B981",
+    description: "Cells, DNA, evolution",
+    topics: [
+      "Cell Structure",
+      "DNA and Genetics",
+      "Photosynthesis",
+      "Evolution",
+    ],
+  },
+
+  math: {
+    label: "Basic Math",
+    emoji: "➗",
+    color: "#FBBF24",
+    description: "Algebra, geometry, calculus",
+    topics: [
+      "Fractions and Decimals",
+      "Equations",
+      "Geometry Basics",
+      "Introduction to Calculus",
+    ],
+  },
+
+  history: {
+    label: "World History",
+    emoji: "🏛️",
+    color: "#8B5CF6",
+    description: "Ancient to modern civilizations",
+    topics: [
+      "Ancient Civilizations",
+      "Medieval Period",
+      "Industrial Revolution",
+      "World Wars",
+    ],
+  },
+
+  economics: {
+    label: "Economics",
+    emoji: "💰",
+    color: "#EC4899",
+    description: "Supply, demand, markets",
+    topics: [
+      "Supply and Demand",
+      "Market Types",
+      "Inflation",
+      "GDP and Economic Growth",
+    ],
+  },
 };
 
 export const interests = [

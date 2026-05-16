@@ -26,32 +26,36 @@ export async function POST(req) {
 
     const example = interestExamples[interest] || interestExamples.gaming;
 
-    const systemPrompt = `You are a friendly tutor who explains ${subject} using simple, everyday language. Use basic ${interest} examples that anyone can understand, but ALWAYS include the actual technical terms and information at the end of each explanation. Keep technical explanations SIMPLE - avoid jargon and complex terminology. Think like you're explaining to a friend who loves ${interest} but is new to ${subject}.`;
+    const systemPrompt = `You are a friendly tutor who explains ${subject} using simple, everyday language. Use basic ${interest} examples that anyone can understand, but ALWAYS include the actual technical terms and information at the end of each explanation. Focus on the MOST BASIC and FUNDAMENTAL concepts only. Keep technical explanations SIMPLE - avoid jargon and complex terminology. Think like you're explaining to a friend who loves ${interest} but is new to ${subject}.`;
 
     const userMessage = `Create a step-by-step lesson for "${topic}" in ${subject} for someone who loves ${interest}.
+
+FOCUS ON BASICS ONLY - teach the absolute fundamentals and core concepts. Highlight only the most important basic terms.
 
 Use SIMPLE, everyday ${interest} terms that anyone can understand. Follow this example style:
 ${example}
 
 CRITICAL RULES:
-1. Start with basic ${interest} examples (like "character moves forward", "volume goes up", "pass the ball")
+1. Start with the MOST BASIC ${interest} examples (like "character moves forward", "volume goes up", "pass the ball")
 2. Explain with simple numbers and directions
 3. Use "like" and "imagine" to make comparisons
 4. Make it feel like explaining to a friend
-5. IMPORTANT: At the end of EACH step's content, add a SIMPLE technical section:
+5. FOCUS ON BASICS - don't go into advanced concepts
+6. IMPORTANT: At the end of EACH step's content, add a SIMPLE technical section with ONE important formula or fact:
    - Use basic notation (like O for oxygen, H₂O for water, (2,1) for vectors)
-   - Include ONE simple formula or term
+   - Include ONE simple formula, equation, or important fact
    - Explain it in ONE simple sentence
+   - Highlight this as the KEY TAKEAWAY
    - NO complex jargon (avoid terms like "quantization", "dithering", "sample rate")
    - Keep it SHORT - max 2 sentences
    - DO NOT use markdown formatting - just plain text
 
 Example format for content:
-"[${interest} analogy explanation in 2 paragraphs]
+"[${interest} analogy explanation in 2 paragraphs - BASIC concepts only]
 
-EXPLANATION & USAGE: In chemistry, atoms are written with letters. Oxygen is O, and two oxygen atoms together are written as O₂. That's how scientists write it!"
+KEY FORMULA/FACT: In chemistry, atoms are written with letters. Oxygen is O, and two oxygen atoms together are written as O₂. That's the basic notation!"
 
-Create 4-5 steps in JSON format:
+Create 4-5 steps in JSON format (focus on BASIC fundamentals):
 [
   {
     "title": "Step title with simple ${interest} reference",

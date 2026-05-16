@@ -23,7 +23,7 @@ export async function groqChat(messages, systemPrompt) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile", // Fast and free
+        model: "llama-3.1-8b-instant", // Faster with higher rate limits
         messages: formattedMessages,
         temperature: 0.7,
         max_tokens: 2048, // Increased for longer responses

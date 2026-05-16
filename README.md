@@ -13,7 +13,6 @@
 
 - [Overview](#-overview)
 - [Real-Life Use Cases](#-real-life-use-cases)
-- [How IBM Bob Was Used](#-how-ibm-bob-was-used)
 - [AI Technology Stack](#-ai-technology-stack)
 - [System Architecture](#-system-architecture)
 - [User Flow](#-user-flow)
@@ -94,52 +93,6 @@ We use **AI-powered personalization** to:
 - Progress tracking across multiple subjects
 
 **Result:** Efficient, targeted practice with immediate learning.
-
----
-
-## 🤖 How IBM Bob Was Used
-
-**IBM Bob** (the AI coding assistant) played a crucial role in building this project:
-
-### 1. **Architecture Design**
-Bob helped design the entire system architecture:
-- Next.js 15 App Router structure
-- API route organization
-- Component hierarchy
-- State management patterns
-
-### 2. **AI Integration Strategy**
-Bob guided the evolution of AI providers:
-- Started with IBM Watsonx (initial concept)
-- Migrated to Google Gemini (API issues)
-- Finally settled on Groq AI (optimal performance)
-- Implemented fallback systems for reliability
-
-### 3. **Code Generation**
-Bob generated:
-- 15+ React components
-- 8 API routes
-- Complex state management logic
-- Framer Motion animations
-- Three.js 3D visualizations
-
-### 4. **Problem Solving**
-Bob solved critical issues:
-- JSON parsing errors from AI responses
-- Token limit optimization (1024 → 2048)
-- Async race conditions in fact generation
-- Response truncation handling
-
-### 5. **Best Practices**
-Bob ensured:
-- Clean, maintainable code structure
-- Proper error handling
-- Performance optimization
-- Accessibility considerations
-- Security best practices
-
-**Total Development Time with Bob:** ~4 hours
-**Estimated Time Without Bob:** ~40+ hours
 
 ---
 
@@ -632,7 +585,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **IBM Bob** - AI coding assistant that made this possible
 - **Groq** - Ultra-fast AI inference
 - **Next.js** - Amazing React framework
 - **Vercel** - Deployment platform

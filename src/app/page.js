@@ -56,15 +56,38 @@ const assistantFacts = {
   }
 };
 
-// 2. Interactive 3D Particles Component
+// 2. Interactive 3D Particles Component with scroll and cursor control
 function FloatingParticles(props) {
   const ref = useRef();
   const [sphere] = useState(() => random.inSphere(new Float32Array(3000), { radius: 2.0 }));
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1
+      });
+    };
+
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   useFrame((state, delta) => {
     if (ref.current) {
-      ref.current.rotation.x -= delta / 12;
-      ref.current.rotation.y -= delta / 18;
+      // Rotate based on cursor position
+      ref.current.rotation.x = mousePos.y * 0.3 + scrollY * 0.001;
+      ref.current.rotation.y = mousePos.x * 0.3 + scrollY * 0.001;
     }
   });
 
@@ -83,7 +106,7 @@ function FloatingParticles(props) {
   );
 }
 
-// 3. Clickable & Hoverable 3D Floating Mesh
+// 3. Clickable & Hoverable 3D Floating Mesh with improved hover effect
 function Interactive3DObject({ position, color, speed, factor }) {
   const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
@@ -118,21 +141,35 @@ function Interactive3DObject({ position, color, speed, factor }) {
       >
         <icosahedronGeometry args={[0.6, 1]} />
         <MeshDistortMaterial
-          color={hovered ? "#ff7a00" : color}
-          roughness={0.1}
-          metalness={0.7}
+          color={hovered ? "#ff4500" : color}
+          roughness={hovered ? 0.05 : 0.1}
+          metalness={hovered ? 0.9 : 0.7}
           clearcoat={1}
-          clearcoatRoughness={0.1}
-          distort={0.4}
-          speed={factor}
+          clearcoatRoughness={hovered ? 0.05 : 0.1}
+          distort={hovered ? 0.6 : 0.4}
+          speed={hovered ? factor * 2 : factor}
         />
       </mesh>
     </Float>
   );
 }
 
-// 4. Main Scene Setup
+// 4. Main Scene Setup with cursor tracking
 function Scene3D() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   return (
     <div className="fixed inset-0 z-0 pointer-events-auto h-screen w-screen">
       <Canvas camera={{ position: [0, 0, 3.5], fov: 75 }}>
@@ -141,8 +178,10 @@ function Scene3D() {
         <directionalLight position={[-5, 5, 5]} intensity={1.2} color="#f97316" />
         <directionalLight position={[5, -5, 5]} intensity={1.2} color="#22d3ee" />
         
-        <Interactive3DObject position={[-2.4, 0, 0]} color="#0f172a" speed={3} factor={2} />
-        <Interactive3DObject position={[2.4, 0, 0]} color="#2e1065" speed={4} factor={1.5} />
+        <group position={[mousePos.x * 0.5, mousePos.y * 0.5, 0]}>
+          <Interactive3DObject position={[-2.4, 0, 0]} color="#0f172a" speed={3} factor={2} />
+          <Interactive3DObject position={[2.4, 0, 0]} color="#2e1065" speed={4} factor={1.5} />
+        </group>
         
         <FloatingParticles />
       </Canvas>
@@ -150,10 +189,10 @@ function Scene3D() {
   );
 }
 
-// Super Brighter Ultra Neon Comet Mouse Trail Component
+// Reduced glow cursor trail
 function MouseGlowTrail() {
   const [trail, setTrail] = useState([]);
-  const maxPoints = 10;
+  const maxPoints = 6;
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -171,17 +210,17 @@ function MouseGlowTrail() {
         return (
           <motion.div
             key={point.id}
-            initial={{ opacity: 1, scale: 1.2 }}
-            animate={{ opacity: 0, scale: 0.1 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
+            initial={{ opacity: 0.8, scale: 1 }}
+            animate={{ opacity: 0, scale: 0.2 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="fixed top-0 left-0 rounded-full"
             style={{
-              x: point.x - 14 * ratio,
-              y: point.y - 14 * ratio,
-              width: `${28 * ratio}px`,
-              height: `${28 * ratio}px`,
-              background: `radial-gradient(circle, #ffffff 0%, #22d3ee 45%, #ff007f 85%, transparent 100%)`,
-              boxShadow: "0 0 20px #22d3ee, 0 0 40px #f97316, 0 0 60px #ff007f",
+              x: point.x - 6 * ratio,
+              y: point.y - 6 * ratio,
+              width: `${12 * ratio}px`,
+              height: `${12 * ratio}px`,
+              background: `radial-gradient(circle, #ffffff 0%, #22d3ee 60%, transparent 100%)`,
+              boxShadow: "0 0 8px rgba(34, 211, 238, 0.4)",
               mixBlendMode: "screen"
             }}
           />
@@ -227,27 +266,28 @@ function CardFireworkBurst() {
   );
 }
 
-// SUB-COMPONENT: Individual card instance (no auto-dismiss, only on hover out)
+// SUB-COMPONENT: Individual card instance with 3-second auto-dismiss
 function CornerPopupCard({ popup, onExpired }) {
-  // Removed auto-dismiss timer - now only dismisses on hover out
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onExpired(popup.id);
+    }, 3000); // Auto-dismiss after 3 seconds
+
+    return () => clearTimeout(timer);
+  }, [popup.id, onExpired]);
 
   return (
     <div className={`absolute pointer-events-none overflow-visible ${popup.cornerClass}`}>
       <motion.div
+        key={popup.id}
         initial={{ opacity: 0, scale: 0.5, y: 30 }}
         animate={{
           opacity: 1,
           scale: 1,
-          y: [0, -10, 0],
-          transition: {
-            y: {
-              repeat: Infinity,
-              duration: 2.5,
-              ease: "easeInOut"
-            }
-          }
+          y: 0
         }}
-        exit={{ opacity: 0, scale: 0.6, y: -20, transition: { duration: 0.2 } }}
+        exit={{ opacity: 0, scale: 0.6, y: -20, transition: { duration: 0.3 } }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
         className={`w-[320px] p-6 rounded-3xl border-4 shadow-[8px_8px_0px_rgba(0,0,0,1)] flex items-start gap-4 text-black relative z-50 overflow-visible
           ${popup.side === "left"
             ? "bg-gradient-to-br from-cyan-300 via-cyan-100 to-purple-300 border-cyan-400 shadow-[0_0_25px_rgba(34,211,238,0.5)]"
@@ -263,7 +303,7 @@ function CornerPopupCard({ popup, onExpired }) {
           ${popup.side === "left" ? "border-b-cyan-400" : "border-b-orange-400"}`}
         />
 
-        <span className="text-4xl animate-bounce shrink-0 select-none z-10">
+        <span className="text-4xl shrink-0 select-none z-10">
           {popup.emoji || "✨"}
         </span>
 
@@ -332,8 +372,25 @@ export default function Home() {
       return newSet;
     });
 
-    // Fallback
-    return `${label} is fascinating! Hover again to learn more.`;
+    // Fallback with actual facts
+    const fallbackFacts = {
+      linearalgebra: "Vectors can be added by combining their components. For example, (2,3) + (1,4) = (3,7)!",
+      chemistry: "Water (H₂O) is made of 2 hydrogen atoms and 1 oxygen atom bonded together!",
+      python: "Python lists can hold any type of data: numbers, text, or even other lists!",
+      physics: "Newton's First Law: An object in motion stays in motion unless acted upon by a force!",
+      biology: "DNA is shaped like a double helix and contains all your genetic information!",
+      math: "The Pythagorean theorem: a² + b² = c² works for all right triangles!",
+      history: "The Roman Empire lasted over 1000 years, from 27 BC to 476 AD!",
+      economics: "Supply and demand determine prices: when demand goes up, prices usually rise!",
+      gaming: "Game engines use frame rates (FPS) to create smooth motion - 60 FPS means 60 images per second!",
+      music: "Sound waves are measured in Hertz (Hz) - humans can hear from 20 Hz to 20,000 Hz!",
+      football: "A regulation soccer ball must be 68-70 cm in circumference and weigh 410-450 grams!",
+      cooking: "The Maillard reaction creates brown color and rich flavors when cooking meat at high heat!",
+      anime: "Anime is typically animated at 24 frames per second, with key frames drawn by lead animators!",
+      movies: "The 180-degree rule in filmmaking keeps characters on consistent sides of the screen!"
+    };
+
+    return fallbackFacts[key] || `${label} combines creativity with technical precision in fascinating ways!`;
   };
 
   const handleStart = () => {
@@ -352,19 +409,22 @@ export default function Home() {
     // Only show popup if not already showing for this key
     if (activePopups.some(p => p.topicKey === key)) return;
 
+    // Limit to maximum 2 popups at a time
+    if (activePopups.length >= 2) return;
+
+    // Use top-left and bottom-right corners
     const corners = [
       "top-12 left-12",
-      "top-12 right-12",
-      "bottom-12 left-12",
       "bottom-12 right-12"
     ];
 
     const busyCorners = activePopups.map(p => p.cornerClass);
     const freeCorners = corners.filter(c => !busyCorners.includes(c));
 
-    const targetCorner = freeCorners.length > 0
-      ? freeCorners[Math.floor(Math.random() * freeCorners.length)]
-      : corners[Math.floor(Math.random() * corners.length)];
+    // If no free corners, don't show popup
+    if (freeCorners.length === 0) return;
+
+    const targetCorner = freeCorners[0]; // Use first available corner
 
     // Generate fact dynamically
     const type = side === "left" ? "subject" : "interest";
@@ -428,7 +488,7 @@ export default function Home() {
       </div>
 
       {/* Primary Interface Content Layer */}
-      <div className="relative z-50 max-w-5xl mx-auto px-6 py-20 pointer-events-none">
+      <div className="relative z-50 w-full mx-0 px-4 py-20 pointer-events-none">
         
         {/* Header */}
         <motion.div
@@ -438,7 +498,7 @@ export default function Home() {
           className="mb-20 text-center"
         >
           <p className="text-xs tracking-[0.4em] text-white/40 uppercase mb-5">
-            Powered by IBM Watsonx
+            Powered by Groq API
           </p>
           <h1 className="text-7xl md:text-8xl font-black leading-none tracking-tight">
             Learn anything.
@@ -458,7 +518,7 @@ export default function Home() {
           <p className="text-xs tracking-[0.3em] uppercase text-white/40 mb-6">
             01 — Choose your subject
           </p>
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
             {Object.entries(subjects).map(([key, subject], index) => (
               <motion.button
                 key={key}
@@ -474,7 +534,7 @@ export default function Home() {
                 })}
                 onPointerOut={() => handleHoverOut(key)}
                 className={`
-                  relative overflow-hidden p-7 rounded-3xl border text-left transition-all duration-300 backdrop-blur-md
+                  relative overflow-hidden p-8 rounded-3xl border text-left transition-all duration-300 backdrop-blur-md
                   ${selectedSubject === key
                     ? "border-cyan-500/40 bg-white/10 shadow-[0_0_40px_rgba(34,211,238,0.15)]"
                     : "border-white/10 bg-black/40 hover:bg-white/5"
@@ -486,11 +546,11 @@ export default function Home() {
                   style={{ background: `radial-gradient(circle at top left, ${subject.color}, transparent 70%)` }}
                 />
                 <div className="relative z-10">
-                  <span className="text-5xl mb-4 block" style={{ color: subject.color }}>
+                  <span className="text-6xl mb-5 block" style={{ color: subject.color }}>
                     {subject.emoji}
                   </span>
-                  <h3 className="text-2xl font-black mb-2">{subject.label}</h3>
-                  <p className="text-white/45 leading-relaxed">{subject.description}</p>
+                  <h3 className="text-2xl font-black mb-3">{subject.label}</h3>
+                  <p className="text-white/45 leading-relaxed text-base">{subject.description}</p>
                 </div>
               </motion.button>
             ))}
@@ -502,7 +562,7 @@ export default function Home() {
           <p className="text-xs tracking-[0.3em] uppercase text-white/40 mb-6">
             02 — What do you love?
           </p>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-5 w-full">
             {interests.map((interest, index) => (
               <motion.button
                 key={interest.id}
@@ -518,15 +578,15 @@ export default function Home() {
                 })}
                 onPointerOut={() => handleHoverOut(interest.id)}
                 className={`
-                  p-5 rounded-2xl border transition-all duration-300 backdrop-blur-md
+                  p-6 rounded-2xl border transition-all duration-300 backdrop-blur-md
                   ${selectedInterest === interest.id
                     ? "border-orange-500/40 bg-white/10 shadow-[0_0_30px_rgba(249,115,22,0.15)]"
                     : "border-white/10 bg-black/40 hover:bg-white/5"
                   }
                 `}
               >
-                <span className="text-3xl block mb-2">{interest.emoji}</span>
-                <span className="font-semibold text-white/80">{interest.label}</span>
+                <span className="text-4xl block mb-3">{interest.emoji}</span>
+                <span className="font-bold text-white/80 text-base">{interest.label}</span>
               </motion.button>
             ))}
           </div>
@@ -537,7 +597,7 @@ export default function Home() {
           <p className="text-xs tracking-[0.3em] uppercase text-white/40 mb-6">
             03 — Choose your mode
           </p>
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
             <motion.button
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -548,7 +608,7 @@ export default function Home() {
                 setQuizDifficulty(null);
               }}
               className={`
-                relative overflow-hidden p-7 rounded-3xl border text-left transition-all duration-300 backdrop-blur-md
+                relative overflow-hidden p-8 rounded-3xl border text-left transition-all duration-300 backdrop-blur-md
                 ${selectedMode === 'learn'
                   ? "border-cyan-500/40 bg-white/10 shadow-[0_0_40px_rgba(34,211,238,0.15)]"
                   : "border-white/10 bg-black/40 hover:bg-white/5"
@@ -556,9 +616,9 @@ export default function Home() {
               `}
             >
               <div className="relative z-10">
-                <span className="text-5xl mb-4 block">📚</span>
-                <h3 className="text-2xl font-black mb-2">Learn</h3>
-                <p className="text-white/45 leading-relaxed">
+                <span className="text-6xl mb-5 block">📚</span>
+                <h3 className="text-3xl font-black mb-3">Learn</h3>
+                <p className="text-white/45 leading-relaxed text-base">
                   Step-by-step lessons with AI explanations and interactive chatbot
                 </p>
               </div>
@@ -572,7 +632,7 @@ export default function Home() {
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedMode('quiz')}
               className={`
-                relative overflow-hidden p-7 rounded-3xl border text-left transition-all duration-300 backdrop-blur-md
+                relative overflow-hidden p-8 rounded-3xl border text-left transition-all duration-300 backdrop-blur-md
                 ${selectedMode === 'quiz'
                   ? "border-orange-500/40 bg-white/10 shadow-[0_0_40px_rgba(249,115,22,0.15)]"
                   : "border-white/10 bg-black/40 hover:bg-white/5"
@@ -580,9 +640,9 @@ export default function Home() {
               `}
             >
               <div className="relative z-10">
-                <span className="text-5xl mb-4 block">🎯</span>
-                <h3 className="text-2xl font-black mb-2">Quiz</h3>
-                <p className="text-white/45 leading-relaxed">
+                <span className="text-6xl mb-5 block">🎯</span>
+                <h3 className="text-3xl font-black mb-3">Quiz</h3>
+                <p className="text-white/45 leading-relaxed text-base">
                   Test your knowledge with AI-generated questions
                 </p>
               </div>
@@ -602,7 +662,7 @@ export default function Home() {
               <p className="text-xs tracking-[0.3em] uppercase text-white/40 mb-6">
                 04 — Select difficulty
               </p>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
                 {[
                   { id: 'easy', label: 'Easy', emoji: '😊', color: 'from-green-500 to-emerald-500' },
                   { id: 'medium', label: 'Medium', emoji: '🤔', color: 'from-yellow-500 to-orange-500' },
@@ -617,15 +677,15 @@ export default function Home() {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setQuizDifficulty(difficulty.id)}
                     className={`
-                      p-5 rounded-2xl border transition-all duration-300 backdrop-blur-md
+                      p-6 rounded-2xl border transition-all duration-300 backdrop-blur-md
                       ${quizDifficulty === difficulty.id
                         ? "border-white/40 bg-white/10 shadow-[0_0_30px_rgba(255,255,255,0.15)]"
                         : "border-white/10 bg-black/40 hover:bg-white/5"
                       }
                     `}
                   >
-                    <span className="text-3xl block mb-2">{difficulty.emoji}</span>
-                    <span className="font-semibold text-white/80">{difficulty.label}</span>
+                    <span className="text-4xl block mb-3">{difficulty.emoji}</span>
+                    <span className="font-bold text-white/80 text-base">{difficulty.label}</span>
                   </motion.button>
                 ))}
               </div>
@@ -634,23 +694,25 @@ export default function Home() {
         </AnimatePresence>
 
         {/* CTA */}
-        <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.99 }}
-          onClick={handleStart}
-          disabled={!selectedSubject || !selectedInterest || !selectedMode || (selectedMode === 'quiz' && !quizDifficulty)}
-          className={`
-            relative overflow-hidden w-full py-6 rounded-3xl text-xl font-black tracking-wide transition-all duration-300 pointer-events-auto
-            ${selectedSubject && selectedInterest && selectedMode && (selectedMode === 'learn' || quizDifficulty)
-              ? `bg-gradient-to-r from-orange-500 to-cyan-500 hover:shadow-[0_0_50px_rgba(255,107,53,0.4)] text-white`
-              : `bg-white/5 text-white/20 cursor-not-allowed border border-white/5`
-            }
-          `}
-        >
-          <span className="relative z-10">
-            {selectedMode === 'quiz' ? 'Start Quiz →' : 'Start Learning →'}
-          </span>
-        </motion.button>
+        <div className="w-full">
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={handleStart}
+            disabled={!selectedSubject || !selectedInterest || !selectedMode || (selectedMode === 'quiz' && !quizDifficulty)}
+            className={`
+              relative overflow-hidden w-full py-7 rounded-3xl text-2xl font-black tracking-wide transition-all duration-300 pointer-events-auto
+              ${selectedSubject && selectedInterest && selectedMode && (selectedMode === 'learn' || quizDifficulty)
+                ? `bg-gradient-to-r from-orange-500 to-cyan-500 hover:shadow-[0_0_50px_rgba(255,107,53,0.4)] text-white`
+                : `bg-white/5 text-white/20 cursor-not-allowed border border-white/5`
+              }
+            `}
+          >
+            <span className="relative z-10">
+              {selectedMode === 'quiz' ? 'Start Quiz →' : 'Start Learning →'}
+            </span>
+          </motion.button>
+        </div>
 
       </div>
     </main>

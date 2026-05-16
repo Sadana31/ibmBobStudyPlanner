@@ -3,15 +3,25 @@ import { subjects } from "@/lib/data";
 
 export async function POST(req) {
   try {
-    const { subject, difficulty, interest, questionCount = 5 } = await req.json();
+    const { subject, difficulty, interest, questionCount = 5, topic } = await req.json();
 
     const difficultyDescriptions = {
       easy: "basic concepts with straightforward questions",
       medium: "intermediate concepts requiring some thinking",
-      hard: "advanced concepts with challenging questions"
+      hard: "advanced concepts with challenging questions",
+      mixed: "one easy, one medium, and one hard question"
     };
 
-    const systemPrompt = `You are a quiz generator creating ${difficulty} level questions for ${subjects[subject]?.label || subject}.
+    let promptDifficulty = difficulty;
+    let actualQuestionCount = questionCount;
+
+    // For mixed difficulty, generate 3 questions (easy, medium, hard)
+    if (difficulty === "mixed") {
+      promptDifficulty = "varied";
+      actualQuestionCount = 3;
+    }
+
+    const systemPrompt = `You are a quiz generator creating ${promptDifficulty} level questions for ${subjects[subject]?.label || subject}.
 
 IMPORTANT: Keep questions SIMPLE and clear. Use everyday language.
 
@@ -22,11 +32,18 @@ Generate questions that:
 4. Include brief, simple explanations
 5. Relate to ${interest} when possible`;
 
-    const userMessage = `Create ${questionCount} multiple-choice questions about ${subjects[subject]?.label || subject} at ${difficulty} difficulty level.
+    const userMessage = `Create ${actualQuestionCount} multiple-choice questions about ${topic || subjects[subject]?.label || subject} in ${subjects[subject]?.label || subject}.
+
+${difficulty === "mixed" ?
+  `Generate exactly 3 questions:
+  1. First question: EASY - basic concept
+  2. Second question: MEDIUM - intermediate concept
+  3. Third question: HARD - advanced concept`
+  :
+  `Difficulty: ${difficultyDescriptions[difficulty]}`
+}
 
 For someone interested in ${interest}, make questions relatable when possible.
-
-Difficulty: ${difficultyDescriptions[difficulty]}
 
 Return ONLY a JSON array with this exact format:
 [
